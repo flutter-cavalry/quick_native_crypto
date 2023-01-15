@@ -6,6 +6,9 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:quick_native_crypto/quick_native_crypto.dart';
 
+const cipherCheck =
+    "g9UCZsGagyDo/vdUDCJ1tmGP+fFCn4BT2ZRo5dO+c2QBSa5LWXi8omuRoHJo8O/d12G/zb9/susRd8MoA20diDity7nygX3RM61gzaufmNx4skqFODaxZx8NxZJ6iu//GeKJW+I4bqUHcL1kqzzynh9jRWjswrG+3QTadVzI5h9ednqMOimrD9F6YzpkXIqNTq6LRtTZreT+3VPlfkdWpsvmKadIEkcFHGqQN9VQSYAwR6FdS6l6IVZ3IIbUiDlq4eWgoRGHGhVzDpDIVnBlRKU9nLLHlSlZGk4uZ79DrPOYHNKZ+j89vjJxFw/avOolgfnnSFegz6eLstxpeoR/Xt883pKfZ5Ws+c2X9GUl4Z4gEJzeetsmI3NKq3IscpuxhG2FyppPpN9ATd6Qj69lXbAv9tTBdw0OuFzhumBuNZNmjaLAofbn0/vC5ZT413Myli3yTFvT+dCUhZbF7pFv+krUUP3we3w7C6alt65pRNKw5rb/F2HXjt5w0xflWVLZ276z3MpIJsldfONigokxpORcjQ4uyRG0OIquINp+kL1l7lJnF5f7XPp5zIT4SyKnogx7q7+1fivIV+a/zEfI3KNKXly4OQdCfnkwPuOtS4DD9LrC20CCn3907M63nEP+T8GPhDfy5/bDpFkU/NhOFxt9ffQvc3PvrEtokN8lmFsPJMHNqnxDUnpvYlD4meUdtZvk0L68dL6c2ePk6pE64X3H6JIUB/5LfC1cJefFHGyGkZqbc42bhN0Itjyn9peHnAZ0x6RHved88iNfHxQ4BDDiVl42sm6MNZ19/X1Ewwl9rK7HuKXkFhleF4Xhs33OqbT8fdvp4A+vaNtjY0oR4QtcG56A6yUCrPOSVW5ZaB6nG/DFfBq3zvAgAPk8Z/FPS2KsEihGwX9ukfCXHdcyrlbhiHUsnixZgDSTMBcsSw3mkM0VvBF0fA4DvIK4c+yCta2F2nr5lXIfUIYtbY+EiCXHEzMTJ+B/m7utcl/cKCFyRPEQlXiuUPoahIDUkkl82CXwXk4/PTG9RnBiwUpA32EdNyUKsCKDA9tzaiyop6WDgyjiLPJ/Qc79IwPa7hnYtDqCWa/rw5nUNjlv2U6wwxZTRVqA9YZ6xfjICM8/KL+DCLRS17PrvH2jaUph6NpMFDksG7iMygibIjy4OVMCHL5560Hz";
+
 void main() {
   runApp(const MyApp());
 }
@@ -44,6 +47,9 @@ On May 6, 2020, the Dart software development kit (SDK) version 2.8 and Flutter 
       var cipherBase64 = base64Encode(res.ciphertext);
       var decryptedText = utf8.decode(await _plugin.aesDecrypt(
           ciphertext: res.ciphertext, key: _key, nonce: _nonce, mac: res.mac));
+      if (cipherBase64 != cipherCheck) {
+        throw 'Cipher value check failed';
+      }
       setState(() {
         _info =
             'Encrypted data: $cipherBase64\n\nDecrypted data: $decryptedText';

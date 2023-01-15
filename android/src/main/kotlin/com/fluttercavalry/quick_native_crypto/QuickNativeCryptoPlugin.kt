@@ -1,5 +1,7 @@
 package com.fluttercavalry.quick_native_crypto
 
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.NonNull
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -7,6 +9,13 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.plugin.common.StandardMethodCodec
+import javax.crypto.*
+import javax.crypto.spec.*
+
+object Constants {
+  const val GCM_TAG_LENGTH = 16
+}
 
 /** QuickNativeCryptoPlugin */
 class QuickNativeCryptoPlugin: FlutterPlugin, MethodCallHandler {
@@ -17,19 +26,76 @@ class QuickNativeCryptoPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "quick_native_crypto")
+    val taskQueue =
+      flutterPluginBinding.binaryMessenger.makeBackgroundTaskQueue()
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "quick_native_crypto", StandardMethodCodec.INSTANCE,
+      taskQueue)
     channel.setMethodCallHandler(this)
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
+    when (call.method) {
+      "aesEncrypt" -> {
+        // Arguments are enforced at dart level.
+        val nonce = call.argument<ByteArray>("nonce")!!
+        val key = call.argument<ByteArray>("key")!!
+        val plaintext = call.argument<ByteArray>("plaintext")!!
+        try {
+          val secretKey: SecretKey = secretAESKey(key)
+          val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+          cipher.init(Cipher.ENCRYPT_MODE, secretKey, IvParameterSpec(nonce))
+          val cipherRes = cipher.doFinal(plaintext)
+          val cipherText = cipherRes.copyOfRange(0, cipherRes.size - Constants.GCM_TAG_LENGTH)
+          val mac = cipherRes.copyOfRange(cipherRes.size - Constants.GCM_TAG_LENGTH, cipherRes.size)
+
+          Handler(Looper.getMainLooper()).post {
+            result.success(
+              mapOf(
+                "ciphertext" to cipherText,
+                "mac" to mac,
+              )
+            )
+          }
+        } catch (err: Exception) {
+          Handler(Looper.getMainLooper()).post {
+            result.error("Err", err.message, null)
+          }
+        }
+      }
+      "aesDecrypt" -> {
+        // Arguments are enforced at dart level.
+        val nonce = call.argument<ByteArray>("nonce")!!
+        val key = call.argument<ByteArray>("key")!!
+        val ciphertext = call.argument<ByteArray>("ciphertext")!!
+        val mac = call.argument<ByteArray>("mac")!!
+        try {
+          val secretKey: SecretKey = secretAESKey(key)
+          val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+          cipher.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(nonce))
+          val plaintext = cipher.doFinal(ciphertext + mac)
+
+          Handler(Looper.getMainLooper()).post {
+            result.success(
+              mapOf(
+                "plaintext" to plaintext,
+              )
+            )
+          }
+        } catch (err: Exception) {
+          Handler(Looper.getMainLooper()).post {
+            result.error("Err", err.message, null)
+          }
+        }
+      }
+      else -> result.notImplemented()
     }
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
+  }
+
+  private fun secretAESKey(key: ByteArray): SecretKey {
+    return SecretKeySpec(key, 0, key.size, "AES")
   }
 }
