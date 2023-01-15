@@ -1,0 +1,22 @@
+PODS:
+  - FlutterMacOS (1.0.0)
+  - quick_native_crypto (0.0.1):
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - quick_native_crypto (from `Flutter/ephemeral/.symlinks/plugins/quick_native_crypto/macos`)
+
+EXTERNAL SOURCES:
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  quick_native_crypto:
+    :path: Flutter/ephemeral/.symlinks/plugins/quick_native_crypto/macos
+
+SPEC CHECKSUMS:
+  FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
+  quick_native_crypto: f347ea6e6db260f9fb5be3b2813e728a2601d35c
+
+PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
+
+COCOAPODS: 1.11.3
