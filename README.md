@@ -1,5 +1,7 @@
 [![pub package](https://img.shields.io/pub/v/quick_native_crypto.svg)](https://pub.dev/packages/quick_native_crypto)
 
+A Flutter plugin for native crypto APIs.
+
 | iOS | Android | macOS |
 | --- | ------- | ----- |
 | ✅  | ✅      | ✅    |
