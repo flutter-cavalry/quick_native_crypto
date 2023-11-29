@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
       """The first version of Flutter was known as "Sky" and ran on the Android operating system. It was unveiled at the 2015 Dart developer summit[8] with the stated intent of being able to render consistently at 120 frames per second.[9] During the keynote of Google Developer Days in Shanghai in September 2018, Google announced Flutter Release Preview 2, the last major release before Flutter 1.0. On December 4th of that year, Flutter 1.0 was released at the Flutter Live event, denoting the first stable version of the framework. On December 11, 2019, Flutter 1.12 was released at the Flutter Interactive event.[10]
 
 On May 6, 2020, the Dart software development kit (SDK) version 2.8 and Flutter 1.17.0 were released, adding support for the Metal API which improves performance on iOS devices by approximately 50%, as well as new Material widgets and network tracking development tools.
-""") as Uint8List;
+""");
   final Uint8List _key =
       base64.decode('XFIiUfwpVnspx9zw2V2bwEscsIEVHJXwShq4BG2hO3s=');
   final Uint8List _nonce = base64.decode('p3QmkcK84NTR+PDn');
