@@ -10,7 +10,6 @@ import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.crypto.*
 import javax.crypto.spec.*
 
@@ -48,7 +47,7 @@ class QuickNativeCryptoPlugin: FlutterPlugin, MethodCallHandler {
             val mac =
               cipherRes.copyOfRange(cipherRes.size - Constants.GCM_TAG_LENGTH, cipherRes.size)
 
-            withContext(Dispatchers.Main) {
+            launch(Dispatchers.Main) {
               result.success(
                 mapOf(
                   "ciphertext" to cipherText,
@@ -57,7 +56,7 @@ class QuickNativeCryptoPlugin: FlutterPlugin, MethodCallHandler {
               )
             }
           } catch (err: Exception) {
-            withContext(Dispatchers.Main) {
+            launch(Dispatchers.Main) {
               result.error("Err", err.message, null)
             }
           }
@@ -77,7 +76,7 @@ class QuickNativeCryptoPlugin: FlutterPlugin, MethodCallHandler {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(nonce))
             val plaintext = cipher.doFinal(ciphertext + mac)
 
-            withContext(Dispatchers.Main) {
+            launch(Dispatchers.Main) {
               result.success(
                 mapOf(
                   "plaintext" to plaintext,
@@ -85,7 +84,7 @@ class QuickNativeCryptoPlugin: FlutterPlugin, MethodCallHandler {
               )
             }
           } catch (err: Exception) {
-            withContext(Dispatchers.Main) {
+            launch(Dispatchers.Main) {
               result.error("Err", err.message, null)
             }
           }

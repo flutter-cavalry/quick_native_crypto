@@ -1,6 +1,6 @@
 name: quick_native_crypto
 description: A Flutter plugin for native crypto APIs.
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/flutter-cavalry/quick_native_crypto
 
 environment:
