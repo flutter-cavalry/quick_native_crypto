@@ -1,7 +1,5 @@
 package com.fluttercavalry.quick_native_crypto
 
-import android.os.Handler
-import android.os.Looper
 import androidx.annotation.NonNull
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -9,7 +7,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.StandardMethodCodec
 import javax.crypto.*
 import javax.crypto.spec.*
 
@@ -25,15 +22,12 @@ class QuickNativeCryptoPlugin: FlutterPlugin, MethodCallHandler {
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
 
-  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    val taskQueue =
-      flutterPluginBinding.binaryMessenger.makeBackgroundTaskQueue()
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "quick_native_crypto", StandardMethodCodec.INSTANCE,
-      taskQueue)
+  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "quick_native_crypto")
     channel.setMethodCallHandler(this)
   }
 
-  override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+  override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
       "aesEncrypt" -> {
         // Arguments are enforced at dart level.
@@ -91,7 +85,7 @@ class QuickNativeCryptoPlugin: FlutterPlugin, MethodCallHandler {
     }
   }
 
-  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
   }
 
