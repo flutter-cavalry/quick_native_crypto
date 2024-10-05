@@ -7,6 +7,10 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.crypto.*
 import javax.crypto.spec.*
 
@@ -30,57 +34,64 @@ class QuickNativeCryptoPlugin: FlutterPlugin, MethodCallHandler {
   override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
       "aesEncrypt" -> {
-        // Arguments are enforced at dart level.
-        val nonce = call.argument<ByteArray>("nonce")!!
-        val key = call.argument<ByteArray>("key")!!
-        val plaintext = call.argument<ByteArray>("plaintext")!!
-        try {
-          val secretKey: SecretKey = secretAESKey(key)
-          val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-          cipher.init(Cipher.ENCRYPT_MODE, secretKey, IvParameterSpec(nonce))
-          val cipherRes = cipher.doFinal(plaintext)
-          val cipherText = cipherRes.copyOfRange(0, cipherRes.size - Constants.GCM_TAG_LENGTH)
-          val mac = cipherRes.copyOfRange(cipherRes.size - Constants.GCM_TAG_LENGTH, cipherRes.size)
+        CoroutineScope(Dispatchers.Default).launch {
+          // Arguments are enforced at dart level.
+          val nonce = call.argument<ByteArray>("nonce")!!
+          val key = call.argument<ByteArray>("key")!!
+          val plaintext = call.argument<ByteArray>("plaintext")!!
+          try {
+            val secretKey: SecretKey = secretAESKey(key)
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, IvParameterSpec(nonce))
+            val cipherRes = cipher.doFinal(plaintext)
+            val cipherText = cipherRes.copyOfRange(0, cipherRes.size - Constants.GCM_TAG_LENGTH)
+            val mac =
+              cipherRes.copyOfRange(cipherRes.size - Constants.GCM_TAG_LENGTH, cipherRes.size)
 
-          Handler(Looper.getMainLooper()).post {
-            result.success(
-              mapOf(
-                "ciphertext" to cipherText,
-                "mac" to mac,
+            withContext(Dispatchers.Main) {
+              result.success(
+                mapOf(
+                  "ciphertext" to cipherText,
+                  "mac" to mac,
+                )
               )
-            )
-          }
-        } catch (err: Exception) {
-          Handler(Looper.getMainLooper()).post {
-            result.error("Err", err.message, null)
+            }
+          } catch (err: Exception) {
+            withContext(Dispatchers.Main) {
+              result.error("Err", err.message, null)
+            }
           }
         }
       }
+
       "aesDecrypt" -> {
-        // Arguments are enforced at dart level.
-        val nonce = call.argument<ByteArray>("nonce")!!
-        val key = call.argument<ByteArray>("key")!!
-        val ciphertext = call.argument<ByteArray>("ciphertext")!!
-        val mac = call.argument<ByteArray>("mac")!!
-        try {
-          val secretKey: SecretKey = secretAESKey(key)
-          val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-          cipher.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(nonce))
-          val plaintext = cipher.doFinal(ciphertext + mac)
+        CoroutineScope(Dispatchers.Default).launch {
+          // Arguments are enforced at dart level.
+          val nonce = call.argument<ByteArray>("nonce")!!
+          val key = call.argument<ByteArray>("key")!!
+          val ciphertext = call.argument<ByteArray>("ciphertext")!!
+          val mac = call.argument<ByteArray>("mac")!!
+          try {
+            val secretKey: SecretKey = secretAESKey(key)
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(nonce))
+            val plaintext = cipher.doFinal(ciphertext + mac)
 
-          Handler(Looper.getMainLooper()).post {
-            result.success(
-              mapOf(
-                "plaintext" to plaintext,
+            withContext(Dispatchers.Main) {
+              result.success(
+                mapOf(
+                  "plaintext" to plaintext,
+                )
               )
-            )
-          }
-        } catch (err: Exception) {
-          Handler(Looper.getMainLooper()).post {
-            result.error("Err", err.message, null)
+            }
+          } catch (err: Exception) {
+            withContext(Dispatchers.Main) {
+              result.error("Err", err.message, null)
+            }
           }
         }
       }
+
       else -> result.notImplemented()
     }
   }
