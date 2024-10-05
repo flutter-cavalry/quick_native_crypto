@@ -2,13 +2,13 @@ import Flutter
 import CryptoKit
 import UIKit
 
-public class SwiftQuickNativeCryptoPlugin: NSObject, FlutterPlugin {
+public class QuickNativeCryptoPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "quick_native_crypto", binaryMessenger: registrar.messenger())
-    let instance = SwiftQuickNativeCryptoPlugin()
+    let instance = QuickNativeCryptoPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
-  
+
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let args = call.arguments as? Dictionary<String, Any> else {
       result(FlutterError(code: "InvalidArgsType", message: "Invalid args type", details: nil))

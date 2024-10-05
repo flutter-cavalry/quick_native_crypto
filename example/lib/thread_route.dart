@@ -33,10 +33,12 @@ class _ThreadRouteState extends State<ThreadRoute> {
       setState(() {
         _results[idx] = 'Running...';
       });
-      await _plugin.aesEncrypt(
-          plaintext: Uint8List.fromList(_randomHexString(500).codeUnits),
-          key: _key,
-          nonce: _nonce);
+      for (var i = 0; i < 100; i++) {
+        await _plugin.aesEncrypt(
+            plaintext: Uint8List.fromList(_randomHexString(1000000).codeUnits),
+            key: _key,
+            nonce: _nonce);
+      }
       setState(() {
         _results[idx] = 'Success';
       });
